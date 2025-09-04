@@ -63,7 +63,18 @@
 </head>
 <body>
   <h1>Pink-Green Photo Generator</h1>
-  <h4>Processing is fast, private, and done entirely in your browser | by: @Ahmadnrfr</h4>
+<style>
+  .credit-link {
+    color: #ec4899; /* warna pink default */
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+  }
+  .credit-link:hover {
+    color: #165027; /* berubah jadi hijau saat hover */
+  }
+</style>
+</h4>
   
   <input type="file" id="upload" accept="image/*">
   
@@ -163,5 +174,37 @@
       link.click();
     });
   </script>
+
+  <footer>
+  <h4>
+    Processing is fast, private, and done entirely in your browser | 
+    created by: 
+    <a href="https://www.instagram.com/ahmadnrfr/" target="_blank" class="credit-link">
+      @Ahmadnrfr
+    </a>
+  </h4>
+</footer>
+<style>
+  footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: #f8f8f8; /* warna netral biar kontras */
+    border-top: 1px solid #ddd;
+    font-family: sans-serif;
+    position: relative; /* biar tetap di bawah konten */
+  }
+
+  .credit-link {
+    color: #ec4899; /* warna pink default */
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+  }
+  .credit-link:hover {
+    color: #165027; /* hijau saat hover atau klik mouse */
+  }
+</style>
 </body>
 </html>
+

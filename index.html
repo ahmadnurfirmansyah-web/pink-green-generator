@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pink-Green Photo Generator</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #f9fafb;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+    input, select, button {
+      margin: 8px 0;
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    button {
+      cursor: pointer;
+      background: #ec4899;
+      color: white;
+      border: none;
+      font-weight: bold;
+      transition: 0.2s ease;
+    }
+    button:hover {
+      background: #db2777;
+    }
+    img {
+      max-width: 500px;
+      max-height: 400px;
+      margin-top: 15px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      object-fit: contain;
+    }
+    .download-btn {
+      background: #22c55e;
+      margin-top: 8px;
+    }
+    .download-btn:hover {
+      background: #16a34a;
+    }
+    .slider-container {
+      margin-top: 5px;
+      text-align: center;
+    }
+    .slider-container label {
+      font-size: 0.9rem;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pink-Green Photo Generator</h1>
+  <h4>Processing is fast, private, and done entirely in your browser | by: @Ahmadnrfr</h4>
+  
+  <input type="file" id="upload" accept="image/*">
+  
+  <select id="mode">
+    <option value="green-pink">Pink Highlights + Green Shadows</option>
+    <option value="pink-green">Green Highlights + Pink Shadows</option>
+  </select>
+
+  <div class="slider-container">
+    <label for="strength">Strength: <span id="strengthValue">100%</span></label>
+    <input type="range" id="strength" min="0" max="100" value="100">
+  </div>
+  
+  <button id="applyBtn">Apply Duotone</button>
+  
+  <canvas id="canvas" style="display:none;"></canvas>
+  <img id="preview" alt="Processed Image" style="display:none;">
+  <button id="downloadBtn" class="download-btn" style="display:none;">Download PNG</button>
+  
+  <script>
+    const upload = document.getElementById("upload");
+    const modeSelect = document.getElementById("mode");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const preview = document.getElementById("preview");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const strengthSlider = document.getElementById("strength");
+    const strengthValue = document.getElementById("strengthValue");
+
+    let imageDataURL = null;
+
+    // Warna baru (lebih colorblind-friendly)
+    const PINK = { r: 0xF9, g: 0x9F, b: 0xD2 }; // #F99FD2
+    const GREEN = { r: 0x16, g: 0x50, b: 0x27 }; // #165027
+
+    strengthSlider.addEventListener("input", () => {
+      strengthValue.textContent = strengthSlider.value + "%";
+    });
+
+    upload.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          imageDataURL = reader.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById("applyBtn").addEventListener("click", () => {
+      if (!imageDataURL) {
+        alert("Upload gambar terlebih dahulu!");
+        return;
+      }
+
+      const img = new Image();
+      img.src = imageDataURL;
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        const mode = modeSelect.value;
+        const strength = strengthSlider.value / 100; // 0 - 1
+
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i], g = data[i+1], b = data[i+2];
+          const avg = (r + g + b) / 3;
+          
+          let targetColor;
+          if (mode === "green-pink") {
+            targetColor = avg < 128 ? GREEN : PINK;
+          } else {
+            targetColor = avg < 128 ? PINK : GREEN;
+          }
+
+          // Blend warna asli dengan warna target sesuai strength
+          data[i]   = r * (1 - strength) + targetColor.r * strength;
+          data[i+1] = g * (1 - strength) + targetColor.g * strength;
+          data[i+2] = b * (1 - strength) + targetColor.b * strength;
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+        preview.src = canvas.toDataURL("image/png");
+        preview.style.display = "block";
+        downloadBtn.style.display = "inline-block";
+      };
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      const link = document.createElement("a");
+      link.href = canvas.toDataURL("image/png");
+      link.download = "pink-green-profile.png";
+      link.click();
+    });
+  </script>
+</body>
+</html>
